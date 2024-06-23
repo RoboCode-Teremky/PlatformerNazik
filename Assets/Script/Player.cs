@@ -4,26 +4,21 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float speed = 1.0f;
-    [SerializeField] private float jumpForce = 1.0f; 
-    private Rigidbody2D rb2d;
+    public float speed = 2;
+    public float jumpForce = 5f;
+    Rigidbody2D rb;
     void Start()
     {
-        rb2d = GetComponent<Rigidbody2D>();
+        rb  = GetComponent<Rigidbody2D>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
-        float move = Input.GetAxis("Horizontal");
+        float movement = Input.GetAxis("Horizontal");
+        transform.position += new Vector3(movement, 0, 0) * speed * Time.deltaTime;
 
-        foreach(RaycastHit2D rh2d in Physics2D.RaycastAll(transform.position, 
-                                                          Vector2.down, 1.5f)){
-        if(rh2d.collider.CompareTag("Platform") && Input.GetButtonDown("Jump")){
-            rb2d.AddForce(Vector2.up*jumpForce, ForceMode2D. Impulse);        
-}                                                    
-                                                          }
+        if (Input.GetKeyDown(KeyCode.Space))
+            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
         
-        rb2d.velocity = new Vector2(move*speed, 
-                                              rb2d.velocity.y);
     }
 }
