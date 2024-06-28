@@ -4,21 +4,35 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public float speed = 2;
-    public float jumpForce = 5f;
-    Rigidbody2D rb;
+    [SerializeField] private float speed = 1.0f;
+    [SerializeField] private float jumpForce = 10.0f;
+    private SpriteRenderer spriteRenderer;
+    private Rigidbody2D rigidbody2D;
+    private Animator animator;
     void Start()
     {
-        rb  = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        rigidbody2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        float movement = Input.GetAxis("Horizontal");
-        transform.position += new Vector3(movement, 0, 0) * speed * Time.deltaTime;
+        float moveX = Input.GetAxis("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.Space))
-            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-        
+        if(moveX > 0.0f) spriteRenderer.flipX = false;
+        else if(moveX < 0.0f) spriteRenderer.flipX = true;
+
+        foreach (RaycastHit2D raycastHit2D in Physics2D.RaycastAll(transform.position, Vector2.down, 1.5f))
+        {
+            if (raycastHit2D.collider.CompareTag("Platform") && Input.GetButton("Jump"))
+            {
+                rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                animator.SetTrigger("Jump");
+            }
+        }
+
+        rigidbody2D.velocity = new Vector2(moveX * speed, rigidbody2D.velocity.y);
+        animator.SetFloat("Speed", rigidbody2D.velocity.magnitude);
     }
 }
